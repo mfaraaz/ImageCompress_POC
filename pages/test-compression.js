@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import imageCompression from "browser-image-compression";
+import { saveAs } from "file-saver";
 
 const prettyByte = (byte) => (byte / 1024 / 1024).toFixed(2);
 
-export const useTestImageCompression = (uris, sizeInMB = 5) => {
+export const useTestImageCompression = (uris, sizeInMB = 5, clicked, save) => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const compressHelper = async (inputUri) => {
     try {
@@ -20,11 +22,20 @@ export const useTestImageCompression = (uris, sizeInMB = 5) => {
   };
 
   const compressImage = async () => {
+    setLoading(true);
     for (const inputUri of uris) {
       const start = performance.now();
       const output = await compressHelper(inputUri);
       const end = performance.now();
       const time = (end - start).toFixed(2);
+      if (save) {
+        const inputBlob = URL.createObjectURL(inputUri);
+        const ipName = "ip-" + output.name;
+        const outputBlob = URL.createObjectURL(output);
+        const opName = "op-" + output.name;
+        saveAs(inputBlob, ipName);
+        saveAs(outputBlob, opName);
+      }
       const image = {
         name: output.name,
         timeInMS: time,
@@ -33,6 +44,7 @@ export const useTestImageCompression = (uris, sizeInMB = 5) => {
       if (error) break;
       setImages((o) => [...o, image]);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -40,7 +52,7 @@ export const useTestImageCompression = (uris, sizeInMB = 5) => {
       setImages([]);
       compressImage();
     }
-  }, [uris]);
+  }, [clicked]);
 
-  return { images, error };
+  return { images, loading, error };
 };
