@@ -30,9 +30,9 @@ export const useTestImageCompression = (uris, sizeInMB = 5, clicked, save) => {
       const time = (end - start).toFixed(2);
       if (save) {
         const inputBlob = URL.createObjectURL(inputUri);
-        const ipName = "ip-" + output.name;
+        const ipName = `ip-${sizeInMB}-${output.name}`;
         const outputBlob = URL.createObjectURL(output);
-        const opName = "op-" + output.name;
+        const opName = `op-${sizeInMB}-${output.name}`;
         saveAs(inputBlob, ipName);
         saveAs(outputBlob, opName);
       }

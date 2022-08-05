@@ -1,6 +1,6 @@
 import Head from "next/head";
 import React, { useState } from "react";
-import { useTestImageCompression } from "./test-compression";
+import { useTestImageCompression } from "../src/test-compression";
 
 const prettyByte = (size) => (size / 1024 / 1024).toFixed(2);
 
