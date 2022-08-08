@@ -11,6 +11,7 @@ export default function Home() {
   });
   const [progress, setProgress] = useState(0);
   const [fs, setFs] = useState(5);
+  const [time, setTime] = useState(null);
 
   const compressImage = async () => {
     const options = {
@@ -19,7 +20,10 @@ export default function Home() {
       onProgress: (p) => setProgress(p),
     };
     try {
+      const start = performance.now();
       const compressedFile = await imageCompression(images.imageFile, options);
+      const end = performance.now();
+      setTime((end - start).toFixed(2));
       console.log(
         "compressedFile instanceof Blob",
         compressedFile instanceof Blob
@@ -107,7 +111,7 @@ export default function Home() {
                 100
               ).toFixed(2)}% of the original image`}
             </p>
-
+            {time && <p>Time (in ms): {time}</p>}
             <div className="p-4 bg-gray-200 w-[50%] my-2">
               <img src={images.inputImage} alt="ip image" />
               <p>Input Image: {images.inputImage}</p>

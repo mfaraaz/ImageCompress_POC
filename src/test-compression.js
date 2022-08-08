@@ -28,6 +28,8 @@ export const useTestImageCompression = (uris, sizeInMB = 5, clicked, save) => {
       const output = await compressHelper(inputUri);
       const end = performance.now();
       const time = (end - start).toFixed(2);
+
+      console.log(inputUri);
       if (save) {
         const inputBlob = URL.createObjectURL(inputUri);
         const ipName = `ip-${sizeInMB}-${output.name}`;
