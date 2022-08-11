@@ -5,56 +5,72 @@ import { saveAs } from "file-saver";
 const prettyByte = (byte) => (byte / 1024 / 1024).toFixed(2);
 
 export const useTestImageCompression = (uris, sizeInMB = 5, clicked, save) => {
-  const [images, setImages] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const compressHelper = async (inputUri) => {
-    try {
-      const output = await imageCompression(inputUri, {
-        maxSizeMB: sizeInMB,
-        useWebWorker: true,
-      });
-      return output;
-    } catch (e) {
-      setError(e);
-    }
-  };
+    const compressHelper = async (inputUri) => {
+        try {
+            const output = await imageCompression(inputUri, {
+                maxSizeMB: sizeInMB,
+                useWebWorker: true,
+                alwaysKeepResolution: true,
+            });
+            return output;
+        } catch (e) {
+            setError(e);
+        }
+    };
 
-  const compressImage = async () => {
-    setLoading(true);
-    for (const inputUri of uris) {
-      const start = performance.now();
-      const output = await compressHelper(inputUri);
-      const end = performance.now();
-      const time = (end - start).toFixed(2);
+    const compressImage = async () => {
+        setLoading(true);
 
-      console.log(inputUri);
-      if (save) {
-        const inputBlob = URL.createObjectURL(inputUri);
-        const ipName = `ip-${sizeInMB}-${output.name}`;
-        const outputBlob = URL.createObjectURL(output);
-        const opName = `op-${sizeInMB}-${output.name}`;
-        saveAs(inputBlob, ipName);
-        saveAs(outputBlob, opName);
-      }
-      const image = {
-        name: output.name,
-        timeInMS: time,
-        size: output.size,
-      };
-      if (error) break;
-      setImages((o) => [...o, image]);
-    }
-    setLoading(false);
-  };
+        const promises = uris.map(async (inputUri) => {
+            console.log("Started");
+            return await compressHelper(inputUri);
+        });
+        console.log(promises);
+        const t1 = performance.now();
+        await Promise.all(
+            uris.map(async (inputUri) => {
+                console.log("Started");
+                return await compressHelper(inputUri);
+            })
+        ).then((res) => console.log(res));
+        const t2 = performance.now();
+        console.log(t2 - t1);
 
-  useEffect(() => {
-    if (uris) {
-      setImages([]);
-      compressImage();
-    }
-  }, [clicked]);
+        for (const inputUri of uris) {
+            const start = performance.now();
+            const output = await compressHelper(inputUri);
+            const end = performance.now();
+            const time = (end - start).toFixed(2);
 
-  return { images, loading, error };
+            if (save) {
+                const inputBlob = URL.createObjectURL(inputUri);
+                const ipName = `ip-${sizeInMB}-${output.name}`;
+                const outputBlob = URL.createObjectURL(output);
+                const opName = `op-${sizeInMB}-${output.name}`;
+                saveAs(inputBlob, ipName);
+                saveAs(outputBlob, opName);
+            }
+            const image = {
+                name: output.name,
+                timeInMS: time,
+                size: output.size,
+            };
+            if (error) break;
+            setImages((o) => [...o, image]);
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        if (uris) {
+            setImages([]);
+            compressImage();
+        }
+    }, [clicked]);
+
+    return { images, loading, error };
 };
