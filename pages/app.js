@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTestImageCompression } from "../src/test-compression";
 
 const prettyByte = (size) => (size / 1024 / 1024).toFixed(2);
@@ -16,6 +16,12 @@ const App = () => {
     clicked,
     save
   );
+
+  const totalTime = images.reduce((total, image) => {
+    return total + parseInt(image?.timeInMS);
+  }, 0);
+
+  const avg = images.length > 0 ? (totalTime / images.length).toFixed(2) : 0;
 
   return (
     <>
@@ -98,6 +104,12 @@ const App = () => {
             </tbody>
           </table>
         </div>
+        {
+          <div>
+            <p>Total Time: {totalTime} ms</p>
+            <p>Average Time: {avg} ms</p>
+          </div>
+        }
       </div>
     </>
   );
