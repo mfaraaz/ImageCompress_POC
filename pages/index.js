@@ -12,6 +12,9 @@ const Home = () => {
       <div className="w-screen h-screen flex flex-col items-center mt-16">
         <button onClick={() => router.push("/home")}>Single Image</button>
         <button onClick={() => router.push("/app")}>Multi Image</button>
+        <button onClick={() => router.push("/worker-test")}>
+          Web Worker Test
+        </button>
       </div>
     </>
   );
